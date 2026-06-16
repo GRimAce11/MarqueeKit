@@ -25,7 +25,7 @@ struct MarqueeScrollCore<Content: View>: View {
                 }
             }
             .frame(width: proxy.size.width, height: proxy.size.height, alignment: alignment)
-            .onChange(of: proxy.size) { _, newSize in
+            .onChange(of: proxy.size, initial: true) { _, newSize in
                 engine.updateSizes(content: engine.contentSize, container: newSize)
             }
         }

@@ -100,9 +100,21 @@ public final class MarqueeEngine {
     func updateSizes(content: CGSize, container: CGSize) {
         contentSize = content
         containerSize = container
-        let overflow = configuration.direction.isHorizontal
-            ? content.width > container.width
-            : content.height > container.height
+
+        let horizontal = configuration.direction.isHorizontal
+        let contentExtent = horizontal ? content.width : content.height
+        let containerExtent = horizontal ? container.width : container.height
+
+        // Overflow can only be evaluated once both axes are measured. Until
+        // then, treat the marquee as non-overflowing so it stays static instead
+        // of starting an animation against a zero-width container.
+        guard contentExtent > 0, containerExtent > 0 else {
+            if isOverflowing { isOverflowing = false }
+            if isScrolling { reset() }
+            return
+        }
+
+        let overflow = contentExtent > containerExtent
         let didChange = overflow != isOverflowing
         isOverflowing = overflow
 
