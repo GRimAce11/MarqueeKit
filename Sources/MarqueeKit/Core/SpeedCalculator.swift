@@ -34,7 +34,7 @@ public enum SpeedCalculator {
 
     /// Converts a desired scroll duration into pixels-per-second given a loop distance.
     public static func pixelsPerSecond(forDuration duration: Double, loopDistance: CGFloat) -> Double {
-        guard duration > 0 else { return 60 }
+        guard duration > 0, loopDistance > 0 else { return 60 }
         return Double(loopDistance) / duration
     }
 }

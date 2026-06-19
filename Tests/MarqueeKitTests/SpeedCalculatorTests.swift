@@ -48,6 +48,24 @@ final class SpeedCalculatorTests: XCTestCase {
         )
     }
 
+    func test_adaptiveSpeed_smallOverflowDoesNotCrawl() {
+        // An email that only spills ~35pt past its container must still scroll
+        // at a readable velocity, not the ~8px/s crawl the old duration model gave.
+        let tinyOverflow = MarqueeSpeedContext(
+            contentWidth: 167, containerWidth: 132,
+            overflowDistance: 35, characterCount: 27
+        )
+        XCTAssertGreaterThanOrEqual(MarqueeSpeed.adaptive.resolver(tinyOverflow), 30)
+    }
+
+    func test_adaptiveSpeed_largeOverflowIsClamped() {
+        let hugeOverflow = MarqueeSpeedContext(
+            contentWidth: 5000, containerWidth: 300,
+            overflowDistance: 4700, characterCount: 800
+        )
+        XCTAssertLessThanOrEqual(MarqueeSpeed.adaptive.resolver(hugeOverflow), 120)
+    }
+
     func test_customResolver_receivesCorrectContext() {
         var received: MarqueeSpeedContext?
         let speed = MarqueeSpeed.custom { c in received = c; return 77 }

@@ -60,10 +60,22 @@ public struct MarqueeSpeed: @unchecked Sendable {
 // MARK: - Adaptive computation
 
 enum AdaptiveSpeedCalculator {
+    /// Comfortable baseline reading velocity in points per second.
+    static let baseVelocity: Double = 45
+    /// Floor so short overflow never collapses into a barely-moving crawl.
+    static let minVelocity: Double = 30
+    /// Ceiling so very long content never whips past unreadably fast.
+    static let maxVelocity: Double = 120
+
     static func compute(context: MarqueeSpeedContext) -> Double {
-        let overflow = max(1, context.overflowDistance)
-        // Target ~4 seconds for a comfortable read of typical ticker content.
-        let targetDuration = 4.0 + log(overflow / 100 + 1) * 1.5
-        return overflow / targetDuration
+        let overflow = max(1, Double(context.overflowDistance))
+        // Scroll at a roughly constant, readable velocity rather than fixing a
+        // target *duration*. A duration-based model divides a near-constant time
+        // into the overflow distance, so small overflow (e.g. an email that only
+        // spills ~35pt past its container) produces a near-zero velocity. Here
+        // velocity grows gently with overflow so long content still completes in
+        // reasonable time, but is clamped so it never crawls or whips.
+        let velocity = baseVelocity * (1 + log(overflow / 200 + 1) * 0.6)
+        return min(maxVelocity, max(minVelocity, velocity))
     }
 }

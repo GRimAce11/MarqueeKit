@@ -48,7 +48,7 @@ public struct MarqueeReadingMode: @unchecked Sendable {
     /// Pause for a fixed duration after each scroll cycle.
     public static func pauseAfterScroll(_ duration: TimeInterval) -> MarqueeReadingMode {
         MarqueeReadingMode { ctx in
-            ReadingModeResult(scrollDuration: ctx.scrollDuration, pauseDuration: duration)
+            ReadingModeResult(scrollDuration: ctx.scrollDuration, pauseDuration: max(0, duration))
         }
     }
 
