@@ -25,7 +25,10 @@ public struct MarqueeConfiguration: Sendable {
     /// What triggers the animation to begin.
     public var trigger: MarqueeTrigger
 
-    /// Reading-mode behaviour after each scroll cycle.
+    /// Reading-mode behaviour after each scroll cycle. By default the marquee
+    /// scrolls one full loop, rests at the start for a couple of seconds, then
+    /// loops again. Use ``MarqueeReadingMode/continuous`` for uninterrupted
+    /// scrolling.
     public var readingMode: MarqueeReadingMode
 
     // MARK: Interaction
@@ -72,7 +75,7 @@ public struct MarqueeConfiguration: Sendable {
         speed: MarqueeSpeed = .adaptive,
         direction: MarqueeDirection = .left,
         trigger: MarqueeTrigger = .automatic,
-        readingMode: MarqueeReadingMode = .continuous,
+        readingMode: MarqueeReadingMode = .pauseAfterScroll(2),
         pauseOnTouch: Bool = false,
         fadeEdges: Bool = false,
         fadeWidth: CGFloat = 20,

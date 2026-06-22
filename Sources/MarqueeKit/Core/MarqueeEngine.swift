@@ -54,6 +54,13 @@ public final class MarqueeEngine {
     var contentSize: CGSize = .zero
     var containerSize: CGSize = .zero
 
+    /// Character count of the scrolling text, or 0 for non-text content.
+    /// Used by reading modes that pace the pause to readability.
+    var contentCharacterCount: Int = 0
+
+    /// Word count of the scrolling text, or 0 for non-text content.
+    var contentWordCount: Int = 0
+
     // MARK: Init
 
     public init(configuration: MarqueeConfiguration = .default) {
@@ -138,15 +145,42 @@ public final class MarqueeEngine {
         guard loopDistance > 0 else { return 0 }
 
         let elapsed = effectiveElapsed(at: date)
-        let ctx = speedContext()
-        let pps = configuration.speed.resolver(ctx)
+        let pps = configuration.speed.resolver(speedContext())
+        guard pps > 0 else { return 0 }
 
-        let raw = elapsed * pps
-        let wrapped = raw.truncatingRemainder(dividingBy: Double(loopDistance))
+        let loop = Double(loopDistance)
+        let sign = CGFloat(configuration.direction.animationSign)
 
-        fireHapticIfNeeded(raw: raw, loopDistance: Double(loopDistance))
+        // Seconds required to scroll content exactly one loop distance.
+        let scrollDuration = loop / pps
 
-        return CGFloat(wrapped) * CGFloat(configuration.direction.animationSign)
+        // Ask the reading mode how long to rest after completing a cycle.
+        let pause = readingPauseDuration(scrollDuration: scrollDuration)
+
+        guard pause > 0 else {
+            // No pause requested: scroll continuously, wrapping seamlessly.
+            let raw = elapsed * pps
+            let wrapped = raw.truncatingRemainder(dividingBy: loop)
+            fireCycleHapticIfNeeded(cycle: Int(raw / loop))
+            return CGFloat(wrapped) * sign
+        }
+
+        // Scroll one loop, hold at the resting position for `pause` seconds,
+        // then start the next loop. The content is rendered twice, so the end
+        // of a scroll (offset == loopDistance) is visually identical to the
+        // resting position (offset == 0), making the transition seamless.
+        let cycleDuration = scrollDuration + pause
+        let cycleIndex = Int(elapsed / cycleDuration)
+        let timeInCycle = elapsed.truncatingRemainder(dividingBy: cycleDuration)
+
+        fireCycleHapticIfNeeded(cycle: cycleIndex)
+
+        guard timeInCycle < scrollDuration else {
+            // Resting phase between loops.
+            return 0
+        }
+
+        return CGFloat(timeInCycle * pps) * sign
     }
 
     // MARK: Private helpers
@@ -164,13 +198,25 @@ public final class MarqueeEngine {
             contentWidth: cSize,
             containerWidth: kSize,
             overflowDistance: max(0, cSize - kSize),
-            characterCount: 0
+            characterCount: contentCharacterCount
         )
     }
 
-    private func fireHapticIfNeeded(raw: Double, loopDistance: Double) {
-        guard configuration.haptics != .none, loopDistance > 0 else { return }
-        let cycle = Int(raw / loopDistance)
+    /// Resolves the configured reading mode into a pause duration (seconds) to
+    /// rest at the start position after each completed scroll cycle.
+    private func readingPauseDuration(scrollDuration: Double) -> Double {
+        let ctx = ReadingModeContext(
+            characterCount: contentCharacterCount,
+            wordCount: contentWordCount,
+            locale: .current,
+            scrollDuration: scrollDuration
+        )
+        guard let result = configuration.readingMode.resolver(ctx) else { return 0 }
+        return max(0, result.pauseDuration)
+    }
+
+    private func fireCycleHapticIfNeeded(cycle: Int) {
+        guard configuration.haptics != .none else { return }
         if cycle != lastHapticCycle {
             lastHapticCycle = cycle
             HapticsEngine.shared.trigger(for: configuration.haptics)

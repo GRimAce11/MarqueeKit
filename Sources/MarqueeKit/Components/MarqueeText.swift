@@ -84,6 +84,7 @@ public struct MarqueeText: View {
         }
         .accessibilityLabel(accessibilityLabel)
         .onAppear {
+            updateContentMetrics()
             if let controller = syncController {
                 engine.syncGroupStartDate = controller.sharedStartDate
             }
@@ -114,6 +115,15 @@ public struct MarqueeText: View {
         case .string(let s, _): return s
         case .localizedKey: return ""  // VoiceOver reads the key directly
         }
+    }
+
+    /// Feeds text metrics to the engine so reading modes that pace the
+    /// inter-loop pause to readability (`.smart`, `.wordsPerMinute`) have the
+    /// data they need.
+    private func updateContentMetrics() {
+        guard case .string(let s, _) = content else { return }
+        engine.contentCharacterCount = s.count
+        engine.contentWordCount = s.wordCount
     }
 }
 

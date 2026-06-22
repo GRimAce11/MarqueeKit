@@ -321,6 +321,45 @@ final class EdgeCaseTests: XCTestCase {
     }
 
     @MainActor
+    func test_engine_pausesAtRestBetweenLoops() {
+        let fixed = Date(timeIntervalSince1970: 3_000_000)
+        // fixed speed 100px/s, loopDistance 200 → 2s to scroll one loop.
+        // pauseAfterScroll(2) → 2s rest → 4s total cycle.
+        let config = MarqueeConfiguration(
+            speed: .fixed(100),
+            trigger: .programmatic,
+            readingMode: .pauseAfterScroll(2)
+        )
+        let e = MarqueeEngine(configuration: config)
+        e.updateSizes(content: CGSize(width: 500, height: 16), container: CGSize(width: 100, height: 16))
+        e.syncGroupStartDate = fixed
+        e.start()
+
+        // Mid scroll: 1s * 100px/s = 100px, left → negative.
+        XCTAssertEqual(e.offset(at: fixed.addingTimeInterval(1), loopDistance: 200), -100, accuracy: 0.001)
+        // During the rest phase the content holds at the start position.
+        XCTAssertEqual(e.offset(at: fixed.addingTimeInterval(3), loopDistance: 200), 0, accuracy: 0.001)
+        // Next cycle begins: 1s into the second loop is again 100px.
+        XCTAssertEqual(e.offset(at: fixed.addingTimeInterval(5), loopDistance: 200), -100, accuracy: 0.001)
+    }
+
+    @MainActor
+    func test_engine_continuousModeNeverRests() {
+        let fixed = Date(timeIntervalSince1970: 4_000_000)
+        let config = MarqueeConfiguration(
+            speed: .fixed(100),
+            trigger: .programmatic,
+            readingMode: .continuous
+        )
+        let e = MarqueeEngine(configuration: config)
+        e.updateSizes(content: CGSize(width: 500, height: 16), container: CGSize(width: 100, height: 16))
+        e.syncGroupStartDate = fixed
+        e.start()
+        // 2.5s * 100px/s = 250px wrapped into 200 → 50px, no pause inserted.
+        XCTAssertEqual(e.offset(at: fixed.addingTimeInterval(2.5), loopDistance: 200), -50, accuracy: 0.001)
+    }
+
+    @MainActor
     func test_engine_offset_wrapsWithinLoopDistance() {
         let fixed = Date(timeIntervalSince1970: 2_000_000)
         let e = MarqueeEngine(configuration: MarqueeConfiguration(speed: .fixed(100), trigger: .programmatic))
