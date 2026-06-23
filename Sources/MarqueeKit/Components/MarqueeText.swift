@@ -79,20 +79,46 @@ public struct MarqueeText: View {
     // MARK: Body
 
     public var body: some View {
-        MarqueeScrollCore(engine: engine) {
-            textView
-        }
-        .accessibilityLabel(accessibilityLabel)
-        .onAppear {
-            updateContentMetrics()
-            if let controller = syncController {
-                engine.syncGroupStartDate = controller.sharedStartDate
+        // The anchor is a hidden single-line Text that gives the view its natural
+        // frame: min(naturalTextWidth, proposedWidth) — exactly how SwiftUI Text
+        // behaves. MarqueeScrollCore lives in the overlay so its GeometryReader
+        // is constrained to that frame instead of filling all available space.
+        anchorView
+            .overlay {
+                MarqueeScrollCore(engine: engine) {
+                    textView
+                }
             }
-        }
-        .environment(\.marqueeEngine, engine)
+            .accessibilityLabel(accessibilityLabel)
+            .onAppear {
+                updateContentMetrics()
+                if let controller = syncController {
+                    engine.syncGroupStartDate = controller.sharedStartDate
+                }
+            }
+            .environment(\.marqueeEngine, engine)
     }
 
     // MARK: Computed subviews
+
+    /// A hidden single-line Text that acts as the layout anchor.
+    /// lineLimit(1) makes it size to min(natural, proposed) — compact when the
+    /// text fits, full proposed-width when it would overflow.
+    @ViewBuilder
+    private var anchorView: some View {
+        switch content {
+        case .string(let s, let font):
+            Text(s)
+                .applyFont(font)
+                .lineLimit(1)
+                .hidden()
+        case .localizedKey(let key, let font):
+            Text(key)
+                .applyFont(font)
+                .lineLimit(1)
+                .hidden()
+        }
+    }
 
     @ViewBuilder
     private var textView: some View {

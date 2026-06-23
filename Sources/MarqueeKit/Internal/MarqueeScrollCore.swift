@@ -32,7 +32,7 @@ struct MarqueeScrollCore<Content: View>: View {
         .clipped()
         .overlay { if engine.configuration.fadeEdges { fadeOverlay } }
         .applyTheme(engine.configuration.theme)
-        .gesture(touchGesture)
+        .applyPauseGesture(engine: engine)
         .onAppear { HapticsEngine.shared.prepare() }
     }
 
@@ -94,14 +94,6 @@ struct MarqueeScrollCore<Content: View>: View {
         }
     }
 
-    // MARK: Touch gesture
-
-    private var touchGesture: some Gesture {
-        DragGesture(minimumDistance: 0)
-            .onChanged { _ in if engine.configuration.pauseOnTouch { engine.pause() } }
-            .onEnded   { _ in if engine.configuration.pauseOnTouch { engine.resume() } }
-    }
-
     // MARK: Edge fade overlay
 
     @ViewBuilder
@@ -157,6 +149,21 @@ struct MarqueeScrollCore<Content: View>: View {
 // MARK: - Theme application
 
 private extension View {
+    /// Only adds a gesture when pauseOnTouch is enabled, using simultaneousGesture
+    /// so parent Button taps always propagate through.
+    @ViewBuilder
+    func applyPauseGesture(engine: MarqueeEngine) -> some View {
+        if engine.configuration.pauseOnTouch {
+            self.simultaneousGesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { _ in engine.pause() }
+                    .onEnded   { _ in engine.resume() }
+            )
+        } else {
+            self
+        }
+    }
+
     @ViewBuilder
     func applyTheme(_ theme: MarqueeTheme) -> some View {
         let padded = self.padding(theme.padding)
