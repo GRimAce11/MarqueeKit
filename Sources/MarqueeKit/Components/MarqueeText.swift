@@ -93,8 +93,17 @@ public struct MarqueeText: View {
             .onAppear {
                 updateContentMetrics()
                 if let controller = syncController {
+                    controller.register(engine)
                     engine.syncGroupStartDate = controller.sharedStartDate
                 }
+            }
+            .onDisappear {
+                syncController?.unregister(engine)
+            }
+            .onChange(of: syncController?.sharedStartDate) { _, newDate in
+                guard let date = newDate else { return }
+                engine.syncGroupStartDate = date
+                if engine.isOverflowing { engine.start() }
             }
             .environment(\.marqueeEngine, engine)
     }
