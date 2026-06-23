@@ -146,7 +146,7 @@ MarqueeBanner(
 
 ### MarqueeGroup
 
-Synchronise multiple marquees to scroll in lockstep:
+Synchronise multiple marquees so they start at exactly the same position and scroll at the same rate:
 
 ```swift
 MarqueeGroup {
@@ -163,8 +163,10 @@ Control the whole group from anywhere in the hierarchy:
 
 Button("Pause All") { sync?.pauseAll() }
 Button("Resume")    { sync?.resumeAll() }
-Button("Re-sync")   { sync?.synchronize() }
+Button("Re-sync")   { sync?.synchronize() } // resets all to the same start position
 ```
+
+All children share a single reference `Date` for their offset computation — pausing, resuming, and re-syncing are applied atomically across the group.
 
 ---
 
