@@ -31,6 +31,7 @@ public final class MarqueeSyncController {
     }
 
     func unregister(_ engine: MarqueeEngine) {
+        engine.sharedGroupPPS = nil
         engines.removeValue(forKey: ObjectIdentifier(engine))
     }
 
@@ -49,10 +50,21 @@ public final class MarqueeSyncController {
 
     /// Resets the shared start date, causing all engines to begin at the same
     /// position simultaneously.
+    ///
+    /// Also computes a shared px/s from the maximum of all engines' resolved
+    /// speeds so engines with different font sizes or content lengths stay
+    /// visually in lockstep rather than drifting at different velocities.
     public func synchronize() {
         sharedStartDate = .now
+
+        let groupPPS = engines.values
+            .compactMap { $0.engine }
+            .map { $0.configuration.speed.resolver($0.speedContext()) }
+            .max()
+
         for pair in engines.values {
             pair.engine?.syncGroupStartDate = sharedStartDate
+            pair.engine?.sharedGroupPPS = groupPPS
             pair.engine?.start()
         }
     }

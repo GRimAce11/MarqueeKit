@@ -49,6 +49,10 @@ public final class MarqueeEngine {
     /// When non-nil, overrides local timing with the group's shared start date.
     var syncGroupStartDate: Date?
 
+    /// When non-nil, all engines in the group use this px/s instead of their
+    /// individually-resolved speed, keeping them visually in lockstep.
+    var sharedGroupPPS: Double?
+
     // MARK: Content metrics (set by the rendering view)
 
     var contentSize: CGSize = .zero
@@ -147,7 +151,7 @@ public final class MarqueeEngine {
         guard loopDistance > 0 else { return 0 }
 
         let elapsed = effectiveElapsed(at: date)
-        let pps = configuration.speed.resolver(speedContext())
+        let pps = sharedGroupPPS ?? configuration.speed.resolver(speedContext())
         guard pps > 0 else { return 0 }
 
         let loop = Double(loopDistance)
@@ -192,7 +196,7 @@ public final class MarqueeEngine {
         return accumulatedPlayTime + date.timeIntervalSince(playSessionStart)
     }
 
-    private func speedContext() -> MarqueeSpeedContext {
+    func speedContext() -> MarqueeSpeedContext {
         let horizontal = configuration.direction.isHorizontal
         let cSize = horizontal ? contentSize.width : contentSize.height
         let kSize = horizontal ? containerSize.width : containerSize.height
