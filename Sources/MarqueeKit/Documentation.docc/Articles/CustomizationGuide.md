@@ -133,7 +133,7 @@ MarqueeText(text)
 
 ## Synchronised Groups
 
-Keep multiple marquees phase-aligned using ``MarqueeGroup``. The group collects all child engines that have finished measuring their content and issues a single synchronized start, so every marquee begins scrolling from position 0 at the same instant — even when children have different content lengths or are laid out across multiple frames:
+Keep multiple marquees phase-aligned using ``MarqueeGroup``. The group collects all child engines that have finished measuring their content, resolves a shared scroll speed (the maximum of all members' configured speeds), and issues a single synchronized start. Every marquee begins from position 0 at the same instant and travels at the same velocity — font size, content length, and speed preset do not cause drift:
 
 ```swift
 MarqueeGroup {

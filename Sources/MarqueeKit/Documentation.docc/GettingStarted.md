@@ -59,7 +59,7 @@ MarqueeText("Live scores — Chelsea 2:1 Arsenal — Man City 0:0 Liverpool")
 
 ## Synchronised Groups
 
-Wrap multiple marquees in ``MarqueeGroup`` to keep them in lockstep. The group defers the start until every child has finished measuring its content, so all animations fire from position 0 at the exact same moment:
+Wrap multiple marquees in ``MarqueeGroup`` to keep them in lockstep. The group defers the start until every child has finished measuring its content, then picks a unified scroll speed from the maximum of all members' resolved speeds. This means all animations fire from position 0 at the same moment and travel at the same velocity — font size and content length do not affect sync:
 
 ```swift
 MarqueeGroup {

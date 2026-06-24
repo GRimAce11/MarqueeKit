@@ -146,7 +146,7 @@ MarqueeBanner(
 
 ### MarqueeGroup
 
-Wrap multiple marquees in a `MarqueeGroup` to make them scroll in perfect lockstep. The group waits until every child has measured its content, then fires a single synchronized start so all animations begin from position 0 at the same moment — regardless of how complex or differently-sized each child's content is.
+Wrap multiple marquees in a `MarqueeGroup` to make them scroll in perfect lockstep. The group waits until every child has measured its content, then fires a single synchronized start so all animations begin from position 0 at the same moment. It also computes a shared scroll speed from the maximum of all members' resolved speeds, so engines with different font sizes or content lengths travel at the same velocity and never drift apart.
 
 ```swift
 MarqueeGroup {

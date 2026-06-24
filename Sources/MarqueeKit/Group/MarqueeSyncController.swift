@@ -48,12 +48,12 @@ public final class MarqueeSyncController {
         }
     }
 
-    /// Resets the shared start date, causing all engines to begin at the same
-    /// position simultaneously.
+    /// Resets the shared start date and shared speed, causing all engines to
+    /// begin from position 0 at the same moment and travel at the same velocity.
     ///
-    /// Also computes a shared px/s from the maximum of all engines' resolved
-    /// speeds so engines with different font sizes or content lengths stay
-    /// visually in lockstep rather than drifting at different velocities.
+    /// The shared speed is the maximum of every registered engine's resolved
+    /// px/s value at the time of the call, so engines with different font sizes
+    /// or content lengths stay visually in lockstep rather than drifting.
     public func synchronize() {
         sharedStartDate = .now
 
