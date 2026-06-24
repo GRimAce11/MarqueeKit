@@ -146,7 +146,7 @@ MarqueeBanner(
 
 ### MarqueeGroup
 
-Synchronise multiple marquees so they start at exactly the same position and scroll at the same rate:
+Wrap multiple marquees in a `MarqueeGroup` to make them scroll in perfect lockstep. The group waits until every child has measured its content, then fires a single synchronized start so all animations begin from position 0 at the same moment — regardless of how complex or differently-sized each child's content is.
 
 ```swift
 MarqueeGroup {

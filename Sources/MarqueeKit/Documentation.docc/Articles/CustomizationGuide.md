@@ -133,7 +133,7 @@ MarqueeText(text)
 
 ## Synchronised Groups
 
-Keep multiple marquees phase-aligned using ``MarqueeGroup``:
+Keep multiple marquees phase-aligned using ``MarqueeGroup``. The group collects all child engines that have finished measuring their content and issues a single synchronized start, so every marquee begins scrolling from position 0 at the same instant — even when children have different content lengths or are laid out across multiple frames:
 
 ```swift
 MarqueeGroup {
@@ -143,11 +143,14 @@ MarqueeGroup {
 }
 ```
 
-Pause or re-synchronise all marquees in the group at once:
+Pause, resume, or re-synchronise all marquees in the group at once:
 
 ```swift
 @Environment(\.marqueeGroupSyncController) var sync
 
-Button("Pause") { sync?.pauseAll() }
-Button("Sync")  { sync?.synchronize() }
+Button("Pause")  { sync?.pauseAll() }
+Button("Resume") { sync?.resumeAll() }
+Button("Sync")   { sync?.synchronize() }
 ```
+
+Calling `synchronize()` resets every member to position 0 from a fresh shared start date — useful after content changes or to add a deliberate "restart all" control to your UI.

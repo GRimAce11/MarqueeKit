@@ -59,7 +59,7 @@ MarqueeText("Live scores — Chelsea 2:1 Arsenal — Man City 0:0 Liverpool")
 
 ## Synchronised Groups
 
-Wrap multiple marquees in ``MarqueeGroup`` to keep them in lockstep:
+Wrap multiple marquees in ``MarqueeGroup`` to keep them in lockstep. The group defers the start until every child has finished measuring its content, so all animations fire from position 0 at the exact same moment:
 
 ```swift
 MarqueeGroup {

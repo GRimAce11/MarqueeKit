@@ -5,6 +5,10 @@ import Observation
 ///
 /// `MarqueeSyncController` is injected into the SwiftUI environment by
 /// ``MarqueeGroup`` and consumed by each marquee engine inside the group.
+/// Child engines call ``requestSynchronize()`` as soon as they detect overflow;
+/// the controller debounces these calls so all engines that become ready in the
+/// same layout pass receive one shared start date and begin scrolling from
+/// position 0 at the same moment.
 @Observable
 @MainActor
 public final class MarqueeSyncController {
