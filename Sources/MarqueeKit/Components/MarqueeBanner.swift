@@ -70,6 +70,10 @@ public struct MarqueeBanner: View {
             engine.syncGroupStartDate = date
             if engine.isOverflowing { engine.start() }
         }
+        .onChange(of: engine.isOverflowing) { _, nowOverflowing in
+            guard nowOverflowing, let controller = syncController else { return }
+            controller.requestSynchronize()
+        }
         .environment(\.marqueeEngine, engine)
     }
 

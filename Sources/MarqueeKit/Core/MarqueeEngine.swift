@@ -126,7 +126,9 @@ public final class MarqueeEngine {
         isOverflowing = overflow
 
         if didChange && overflow && configuration.trigger == .automatic && !isScrolling {
-            start()
+            // Inside a group the controller re-synchronizes all engines together
+            // once every member has measured; don't start solo here.
+            if syncGroupStartDate == nil { start() }
         } else if !overflow && isScrolling {
             reset()
         }

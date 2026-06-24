@@ -16,6 +16,7 @@ public final class MarqueeSyncController {
     public private(set) var isPaused: Bool = false
 
     private var engines: [ObjectIdentifier: WeakEngine] = [:]
+    private var pendingSyncTask: Task<Void, Never>?
 
     public init() {}
 
@@ -30,6 +31,17 @@ public final class MarqueeSyncController {
     }
 
     // MARK: Group control
+
+    /// Called by child engines when they first become overflowing.
+    /// Debounced so all engines that overflow in the same layout pass share a
+    /// single `synchronize()` call with a fresh start date.
+    func requestSynchronize() {
+        guard pendingSyncTask == nil else { return }
+        pendingSyncTask = Task { @MainActor [weak self] in
+            self?.pendingSyncTask = nil
+            self?.synchronize()
+        }
+    }
 
     /// Resets the shared start date, causing all engines to begin at the same
     /// position simultaneously.
