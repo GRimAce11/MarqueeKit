@@ -107,7 +107,13 @@ public struct MarqueeText: View {
             }
             .onChange(of: engine.isOverflowing) { _, nowOverflowing in
                 guard nowOverflowing, let controller = syncController else { return }
-                controller.requestSynchronize()
+                if engine.isScrolling {
+                    // Already started by an earlier group sync; correct the
+                    // shared speed now that this engine's size is known.
+                    controller.updateGroupSpeed()
+                } else {
+                    controller.requestSynchronize()
+                }
             }
             .environment(\.marqueeEngine, engine)
     }

@@ -37,14 +37,31 @@ public final class MarqueeSyncController {
 
     // MARK: Group control
 
-    /// Called by child engines when they first become overflowing.
-    /// Debounced so all engines that overflow in the same layout pass share a
-    /// single `synchronize()` call with a fresh start date.
+    /// Called by a child engine when it first becomes overflowing and has not
+    /// yet been started by the group.  Uses cancel-and-replace debouncing so
+    /// the *last* engine to measure (often the one with the most content) wins
+    /// the race and `synchronize()` fires once with all sizes available.
     func requestSynchronize() {
-        guard pendingSyncTask == nil else { return }
+        pendingSyncTask?.cancel()
         pendingSyncTask = Task { @MainActor [weak self] in
+            guard !Task.isCancelled else { return }
             self?.pendingSyncTask = nil
             self?.synchronize()
+        }
+    }
+
+    /// Called by a child engine that is already scrolling (started by an
+    /// earlier `synchronize()` call) but whose content size just became
+    /// available.  Recomputes and redistributes the shared speed without
+    /// resetting the shared start date, so timing stays locked while the
+    /// velocity is corrected.
+    func updateGroupSpeed() {
+        let groupPPS = engines.values
+            .compactMap { $0.engine }
+            .map { $0.configuration.speed.resolver($0.speedContext()) }
+            .max()
+        for pair in engines.values {
+            pair.engine?.sharedGroupPPS = groupPPS
         }
     }
 

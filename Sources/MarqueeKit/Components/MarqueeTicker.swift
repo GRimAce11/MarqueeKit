@@ -78,7 +78,11 @@ public struct MarqueeTicker<Item: Identifiable, ItemContent: View>: View {
         }
         .onChange(of: engine.isOverflowing) { _, nowOverflowing in
             guard nowOverflowing, let controller = syncController else { return }
-            controller.requestSynchronize()
+            if engine.isScrolling {
+                controller.updateGroupSpeed()
+            } else {
+                controller.requestSynchronize()
+            }
         }
         .environment(\.marqueeEngine, engine)
     }
