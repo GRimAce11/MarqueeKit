@@ -29,11 +29,34 @@ struct MarqueeScrollCore<Content: View>: View {
                 engine.updateSizes(content: engine.contentSize, container: newSize)
             }
         }
+        // `GeometryReader` has no intrinsic size, so in a `VStack` it simply accepts whatever
+        // height is proposed — and that is what `.clipped()` below then clips to. Because
+        // `.applyTheme` runs *after* the clip, a theme's padding inflates the background
+        // without giving the content any more room, so themes with larger vertical insets
+        // (`.glass`, `.modern`) lost their ascenders and descenders. Adopting the measured
+        // content size along the cross axis makes the clip match the text instead.
+        .frame(width: intrinsicCrossWidth, height: intrinsicCrossHeight)
         .clipped()
         .overlay { if engine.configuration.fadeEdges { fadeOverlay } }
         .applyTheme(engine.configuration.theme)
         .applyPauseGesture(engine: engine)
         .onAppear { HapticsEngine.shared.prepare() }
+    }
+
+    // MARK: Intrinsic cross-axis size
+
+    /// Height a horizontal marquee should adopt: the measured content height, so the clip
+    /// region matches the text. `nil` until the content has been measured, and always `nil`
+    /// for vertical marquees, where height is the scrolling axis and must stay flexible.
+    private var intrinsicCrossHeight: CGFloat? {
+        guard engine.configuration.direction.isHorizontal else { return nil }
+        return engine.contentSize.height > 0 ? engine.contentSize.height : nil
+    }
+
+    /// The vertical-marquee equivalent: adopt the measured content width.
+    private var intrinsicCrossWidth: CGFloat? {
+        guard !engine.configuration.direction.isHorizontal else { return nil }
+        return engine.contentSize.width > 0 ? engine.contentSize.width : nil
     }
 
     // MARK: Static (no overflow / reduce motion)

@@ -14,7 +14,7 @@ Modern scrolling text and content components for SwiftUI and UIKit.
 MarqueeKit provides production-ready scrolling components that feel native to Apple platforms. Smart overflow detection means you never configure whether scrolling is needed — the SDK figures it out automatically.
 
 <p align="center">
-  <img src=".github/media/marquee.gif" alt="MarqueeText, ticker theme, speeds, edge fading and MarqueeBanner all scrolling" width="620" />
+  <img src=".github/media/marquee.gif" alt="MarqueeText with the glass, modern and ticker themes, plus speed variants, all scrolling" width="580" />
 </p>
 
 <p align="center"><em>Recorded from the app in <a href="Demo/">Demo/</a> — every row is a real MarqueeKit component.</em></p>
@@ -298,10 +298,8 @@ MarqueeKit is available under the MIT license. See [LICENSE](LICENSE) for detail
 
 ## Known issues
 
-- **`.glass` and `.modern` themes clip their text vertically.** In
-  `Sources/MarqueeKit/Internal/MarqueeScrollCore.swift`, the scroll container is `.clipped()`
-  and `.applyTheme(_:)` is applied *after* it, so the theme's padding inflates the background
-  without giving the content any more room. Themes with larger vertical insets lose their
-  ascenders and descenders. `.ticker` (4 pt insets) and `MarqueeBanner` are unaffected. A
-  caller cannot work around it with `.frame(height:)`, because that frame sits outside the
-  theme padding too.
+- **`MarqueeBanner` clips its text vertically.** `MarqueeText` — including every theme — renders
+  correctly as of the scroll-core sizing fix, but the banner still loses its ascenders and
+  descenders. Its content is an `HStack` of an SF Symbol and a `Text`, and something in that
+  composition reports a compressed height to the scroll core. Setting `.fixedSize()` on the text
+  does not resolve it, so the cause is not simply the `vertical: false` proposal.

@@ -14,10 +14,19 @@ struct ShowcaseView: View {
                 }
 
 
+                section("Themes", ".glass", chrome: false) {
+                    MarqueeText("Frosted background, rounded corners, subtle border — the glass theme.")
+                        .marqueeTheme(.glass)
+                }
+
+                section("Themes", ".modern", chrome: false) {
+                    MarqueeText("A tinted, contemporary treatment for headlines and now-playing rows.")
+                        .marqueeTheme(.modern)
+                }
+
                 section("Themes", ".ticker", chrome: false) {
                     MarqueeText("AAPL 232.14  ▲ 1.2%    MSFT 418.90  ▲ 0.4%    NVDA 138.02  ▼ 0.8%")
                         .marqueeTheme(.ticker)
-                        .frame(height: 36)
                 }
 
 
@@ -35,11 +44,6 @@ struct ShowcaseView: View {
                         .fadeEdges(true, width: 28)
                 }
 
-                section("MarqueeBanner", "with an SF Symbol", chrome: false) {
-                    MarqueeBanner("Deployment finished — 129 tests passed, all platforms green.",
-                                  icon: "checkmark.seal.fill")
-                        .frame(height: 48)
-                }
             }
             .padding(20)
         }
