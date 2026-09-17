@@ -1,0 +1,30 @@
+name: MarqueeKitDemo
+options:
+  bundleIdPrefix: com.grimace11
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+packages:
+  MarqueeKit:
+    path: ..
+targets:
+  MarqueeKitDemo:
+    type: application
+    platform: iOS
+    sources:
+      - Sources
+    dependencies:
+      - package: MarqueeKit
+        product: MarqueeKit
+    info:
+      path: Info.plist
+      properties:
+        CFBundleDisplayName: MarqueeKit
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.grimace11.MarqueeKitDemo
+        GENERATE_INFOPLIST_FILE: NO
+        TARGETED_DEVICE_FAMILY: "1"
