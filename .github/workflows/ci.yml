@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Build & test (macOS)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Show toolchain
+        run: |
+          swift --version
+          xcodebuild -version
+
+      - name: Build
+        run: swift build -v
+
+      - name: Test
+        run: swift test -v
+
+  platforms:
+    name: Build for ${{ matrix.platform }}
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [iOS Simulator, tvOS Simulator]
+    steps:
+      - uses: actions/checkout@v5
+
+      # The UIKit components and haptics live behind `#if canImport(UIKit)`, so a macOS
+      # `swift build` never compiles them. These jobs do.
+      - name: Build for ${{ matrix.platform }}
+        run: |
+          xcodebuild \
+            -scheme MarqueeKit \
+            -destination 'generic/platform=${{ matrix.platform }}' \
+            -configuration Debug \
+            build \
+            CODE_SIGNING_ALLOWED=NO

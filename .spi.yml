@@ -1,0 +1,6 @@
+# Swift Package Index build configuration: hosts the DocC catalog in
+# Sources/MarqueeKit/Documentation.docc on swiftpackageindex.com.
+version: 1
+builder:
+  configs:
+    - documentation_targets: [MarqueeKit]
