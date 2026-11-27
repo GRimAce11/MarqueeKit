@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-11-27
+
+Bug fixes: the package now builds for tvOS, and themed marquees show all of their text.
+
 ### Added
 
 - Demo app in `Demo/` showing every component and theme, and a README GIF recorded from it.
@@ -30,5 +34,6 @@ First release.
 - UIKit versions of the components.
 - VoiceOver support and Reduce Motion handling.
 
-[Unreleased]: https://github.com/GRimAce11/MarqueeKit/compare/1.0.0...HEAD
+[Unreleased]: https://github.com/GRimAce11/MarqueeKit/compare/1.0.1...HEAD
+[1.0.1]: https://github.com/GRimAce11/MarqueeKit/compare/1.0.0...1.0.1
 [1.0.0]: https://github.com/GRimAce11/MarqueeKit/releases/tag/1.0.0

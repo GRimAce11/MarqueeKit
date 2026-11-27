@@ -59,7 +59,7 @@ Or add to `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/GRimAce11/MarqueeKit", from: "1.0.0"),
+    .package(url: "https://github.com/GRimAce11/MarqueeKit", from: "1.0.1"),
 ]
 ```
 
