@@ -173,9 +173,13 @@ struct MarqueeScrollCore<Content: View>: View {
 
 private extension View {
     /// Only adds a gesture when pauseOnTouch is enabled, using simultaneousGesture
-    /// so parent Button taps always propagate through.
+    /// so parent Button taps always propagate through. tvOS has no touch screen (and no
+    /// `DragGesture`), so there `pauseOnTouch` has no effect.
     @ViewBuilder
     func applyPauseGesture(engine: MarqueeEngine) -> some View {
+        #if os(tvOS)
+        self
+        #else
         if engine.configuration.pauseOnTouch {
             self.simultaneousGesture(
                 DragGesture(minimumDistance: 0)
@@ -185,6 +189,7 @@ private extension View {
         } else {
             self
         }
+        #endif
     }
 
     @ViewBuilder

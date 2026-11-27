@@ -186,12 +186,12 @@ All components share the same fluent modifier API:
 | `.speed(.fixed(80))` | Constant pixels per second |
 | `.direction(.left)` | `.left` `.right` `.up` `.down` |
 | `.fadeEdges(true)` | Gradient fade at both edges |
-| `.pauseOnTouch(true)` | Pause on user touch |
+| `.pauseOnTouch(true)` | Pause on user touch (no effect on tvOS) |
 | `.readingMode(.smart)` | Auto pause for reading |
 | `.trigger(.tap)` | Scroll once on tap |
 | `.effect(.elastic)` | Visual effect during scroll |
 | `.marqueeTheme(.glass)` | Visual container theme |
-| `.haptics(.loop)` | Haptic on each loop |
+| `.haptics(.loop)` | Haptic on each loop (iPhone only) |
 | `.loopSpacing(40)` | Gap between repetitions |
 | `.liveActivityOptimized()` | Widget / Live Activity mode |
 

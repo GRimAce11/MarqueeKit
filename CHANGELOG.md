@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Fixed
 
 - Themed marquees no longer clip their text.
+- The package now builds for tvOS, which `Package.swift` has always listed: haptics used
+  `UIImpactFeedbackGenerator`, which tvOS does not have. Haptics are iOS-only and do nothing on
+  macOS and tvOS, and `pauseOnTouch` has no effect on tvOS, which has no touch screen.
 
 ## [1.0.0] - 2026-06-24
 

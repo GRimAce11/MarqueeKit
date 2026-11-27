@@ -1,22 +1,25 @@
 import Foundation
-#if canImport(UIKit)
+#if os(iOS)
 import UIKit
 #endif
 
 /// Wraps UIKit haptic generators so the rest of the SDK stays platform-agnostic.
+///
+/// Haptics exist only on iOS: tvOS has UIKit but no feedback generators, so `canImport(UIKit)`
+/// is not enough. Elsewhere every call is a no-op.
 @MainActor
 final class HapticsEngine {
     static let shared = HapticsEngine()
 
     private init() {}
 
-    #if canImport(UIKit)
+    #if os(iOS)
     private lazy var lightImpact = UIImpactFeedbackGenerator(style: .light)
     private lazy var softImpact  = UIImpactFeedbackGenerator(style: .soft)
     #endif
 
     func trigger(for haptics: MarqueeHaptics) {
-        #if canImport(UIKit)
+        #if os(iOS)
         switch haptics {
         case .none:
             break
@@ -31,7 +34,7 @@ final class HapticsEngine {
     }
 
     func prepare() {
-        #if canImport(UIKit)
+        #if os(iOS)
         lightImpact.prepare()
         softImpact.prepare()
         #endif
